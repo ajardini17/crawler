@@ -2,13 +2,17 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const promise = require('bluebird');
 //const db = require('./db.js');
-
-
-
-
-
+const followedStats = {
+  'trb_per_g': 'rebounds',
+  'ast_per_g': 'assists',
+  'stl_per_g' : 'steals',
+  'blk_per_g': 'blocks',
+  'pts_per_g': 'points'
+}
 
 const request = require('request');
+
+
 var bball = "https://www.basketball-reference.com";
 var fetchTeam = function(link){
   request(link, (err, resp, html) => {
@@ -58,15 +62,33 @@ var fetchPlayers = function(link, id){
   
 };
 
-//fetchPlayers('https://www.basketball-reference.com/teams/BOS/2017.html');
+fetchPlayers('https://www.basketball-reference.com/teams/BOS/2017.html');
+
+
 var fetchPlayerStats = function(link, id) {
   //post stats to db
   request(link, (err, resp, html) => {
     var $ = cheerio.load(html);
-    console.log($('tfoot')[0].children[0].children[8]);
+    var stats = $('tfoot')[0].children[0].children;
+    var fetchedStats = [$('h1')[0].children[0].children];
+   
+    for(var key in stats) {
+      
+      var statObj = stats[key].children;
+      for(let stat in statObj) {
+        let curStat = stats[key].attribs['data-stat'];
+        if (followedStats.hasOwnProperty(curStat)) {
+          fetchedStats.push(statObj[stat]['data']);
+        }
+        //console.log(stats[key].attribs['data-stat'], statObj[stat]['data']);
+      }
+      
+      
+    }
+    createPlayer(fetchedStats, id);
   });
 }
-fetchPlayerStats('https://www.basketball-reference.com/players/b/bradlav01.html');
+//fetchPlayerStats('https://www.basketball-reference.com/players/h/hillida01.html');
 
 
 const createTeam = (location, teamname, cb) => {
@@ -79,7 +101,7 @@ const createTeam = (location, teamname, cb) => {
 
 const createPlayer = (player, id) => {  
   //player should be array with 6 params
-  db.query(`INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, id)`, player, (err, resp) => {
+  db.query(`INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, "${id}")`, player, (err, resp) => {
     
   })
 };

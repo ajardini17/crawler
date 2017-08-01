@@ -14,11 +14,11 @@ CREATE TABLE teams(
 CREATE TABLE players(
   id int AUTO_INCREMENT,
   playerName varchar(50),
-  ppg TEXT,
-  trb TEXT,
-  assists TEXT,
-  steals TEXT,
-  blocks TEXT,
+  rebounds VARCHAR(50),
+  assists VARCHAR(50),
+  steals VARCHAR(50),
+  blocks VARCHAR(50),
+  points VARCHAR(50),
   teamID int,
   PRIMARY KEY(id),
   FOREIGN KEY (teamID) REFERENCES teams (id)
