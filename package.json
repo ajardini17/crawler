@@ -1,0 +1,32 @@
+{
+  "name": "crawler",
+  "version": "1.0.0",
+  "description": "scrapes basketball reference",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajardini17/crawler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajardini17/crawler/issues"
+  },
+  "homepage": "https://github.com/ajardini17/crawler#readme",
+  "dependencies": {
+    "angular": "^1.6.5",
+    "axios": "^0.16.2",
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.2",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.15.3",
+    "mysql": "^2.14.0",
+    "nodemon": "^1.11.0",
+    "request": "^2.81.0"
+  }
+}
