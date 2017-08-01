@@ -1,7 +1,7 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 const promise = require('bluebird');
-const db = require('./db.js');
+//const db = require('./db.js');
 
 
 
@@ -31,9 +31,9 @@ var fetchTeam = function(link){
           team = location[0];
           team = title[1];
         }
-        createTeam(location, team, (err, res) => {
+        createTeam(location, team, (id) => {
           
-          fetchPlayers(link + teamObj.href, res.id)
+          fetchPlayers(link + teamObj.href, id);
         });
         //fetchPlayers(results[i])
       }
@@ -47,22 +47,35 @@ var fetchTeam = function(link){
 
 var fetchPlayers = function(link, id){
   request(link, (err, resp, html) => {
-    
+    var $ = cheerio.load(html);
+    var players = $("#roster").find('a');
+    for(var i = 0; i < players.length; i++) {
+      if (players[i].attribs.href.indexOf('/players/') > -1) {
+        fetchPlayerStats(bball + players[i].attribs.href, id);
+      }
+    }
   });
   
 };
 
-var fetchPlayerStats = function() {
+//fetchPlayers('https://www.basketball-reference.com/teams/BOS/2017.html');
+var fetchPlayerStats = function(link, id) {
   //post stats to db
+  request(link, (err, resp, html) => {
+    var $ = cheerio.load(html);
+    console.log($('tfoot')[0].children[0].children[8]);
+  });
 }
+fetchPlayerStats('https://www.basketball-reference.com/players/b/bradlav01.html');
+
 
 const createTeam = (location, teamname, cb) => {
   db.query(`INSERT INTO teams (teamname, location) VALUES ("${teamname}", "${location}")`, (err, res) => {
-    console.log(res.insertId,'result');
+    cb(res.insertId);
   })
 };
 
-createTeam('los ang55667eles','clappers');
+//createTeam('los ang55667eles','clappers');
 
 const createPlayer = (player, id) => {  
   //player should be array with 6 params
