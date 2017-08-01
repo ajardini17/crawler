@@ -4,7 +4,7 @@ CREATE DATABASE nba;
 USE nba;
 
 CREATE TABLE teams(
-  id int AUTO_INCREMENT,
+  id int NOT NULL AUTO_INCREMENT,
   teamname varchar(50),
   location varchar(50),
   PRIMARY KEY (id)

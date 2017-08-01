@@ -1,7 +1,7 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 const promise = require('bluebird');
-//const db = require('./db.js');
+const db = require('./db.js');
 const followedStats = {
   'trb_per_g': 'rebounds',
   'ast_per_g': 'assists',
@@ -25,21 +25,20 @@ var fetchTeam = function(link){
         //add team to teams database, grab id from it and pass id to fetchPlayers
         var teamObj = results[i]['attribs'];
         var title = teamObj.title.split(' ');
-        var team, location;
+        var team;
+        var location;
         
     
-        if(location.length === 3) {
+        if(title.length === 3) {
           location = title[0] + ' ' + title[1];
           team = title[2];
         } else {
-          team = location[0];
-          team = title[1];
+          team = title[0];
+          location = title[1];
         }
         createTeam(location, team, (id) => {
-          
           fetchPlayers(link + teamObj.href, id);
         });
-        //fetchPlayers(results[i])
       }
       
     }
@@ -47,7 +46,6 @@ var fetchTeam = function(link){
   })
 };
 
-//fetchTeam(bball);
 
 var fetchPlayers = function(link, id){
   request(link, (err, resp, html) => {
@@ -62,15 +60,13 @@ var fetchPlayers = function(link, id){
   
 };
 
-fetchPlayers('https://www.basketball-reference.com/teams/BOS/2017.html');
-
 
 var fetchPlayerStats = function(link, id) {
   //post stats to db
   request(link, (err, resp, html) => {
     var $ = cheerio.load(html);
     var stats = $('tfoot')[0].children[0].children;
-    var fetchedStats = [$('h1')[0].children[0].children];
+    var fetchedStats = [$('h1')[0].children[0].data];
    
     for(var key in stats) {
       
@@ -80,16 +76,13 @@ var fetchPlayerStats = function(link, id) {
         if (followedStats.hasOwnProperty(curStat)) {
           fetchedStats.push(statObj[stat]['data']);
         }
-        //console.log(stats[key].attribs['data-stat'], statObj[stat]['data']);
-      }
-      
-      
+      }    
     }
     createPlayer(fetchedStats, id);
   });
 }
-//fetchPlayerStats('https://www.basketball-reference.com/players/h/hillida01.html');
 
+fetchTeam(bball);
 
 const createTeam = (location, teamname, cb) => {
   db.query(`INSERT INTO teams (teamname, location) VALUES ("${teamname}", "${location}")`, (err, res) => {
@@ -97,13 +90,11 @@ const createTeam = (location, teamname, cb) => {
   })
 };
 
-//createTeam('los ang55667eles','clappers');
-
 const createPlayer = (player, id) => {  
   //player should be array with 6 params
-  db.query(`INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, "${id}")`, player, (err, resp) => {
-    
+  db.query(`INSERT INTO players (playerName, rebounds, assists, steals, blocks, points, teamID) VALUES (?, ?, ?, ?, ?, ?, "${id}")`, player, (err, resp) => {
+    if (err) {
+      console.log('cant add player');
+    } 
   })
 };
-
-
